@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Digital Shield — Anti-Fraud Message Analyzer</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="dsw">
+  <div class="dsw__wrap">
+    <div class="dsw__top">
+      <div class="dsw__eyebrow" id="dswEyebrow">Диджитал Щит · прототип аналізатора</div>
+      <div class="dsw__lang">
+        <button data-lang="uk" class="active">UA</button>
+        <button data-lang="en">EN</button>
+      </div>
+    </div>
+
+    <h1 class="dsw__title" id="dswTitle">Перш ніж повірити повідомленню —<br><em>дай йому пройти перевірку.</em></h1>
+    <p class="dsw__sub" id="dswSub">Встав текст підозрілого SMS, повідомлення в Telegram/Viber чи листа — і отримаєш пояснення простою мовою, чому це схоже (або не схоже) на шахрайство.</p>
+
+    <div class="dsw__panel">
+      <div class="dsw__panel-label" id="dswPanelLabel">Текст повідомлення</div>
+      <textarea class="dsw__textarea" id="dswInput" placeholder="Наприклад: Вам призначено компенсацію 4200 грн. Для отримання підтвердіть картку за посиланням..."></textarea>
+      <div class="dsw__row">
+        <div class="dsw__samples" id="dswSamples"></div>
+        <button class="dsw__btn" id="dswAnalyze">Перевірити повідомлення</button>
+      </div>
+      <div class="dsw__scan" id="dswScan"></div>
+      <div class="dsw__result" id="dswResult"></div>
+    </div>
+
+    <div class="dsw__panel dsw__history" id="dswHistoryPanel">
+      <div class="dsw__panel-label" id="dswHistoryLabel">Історія перевірок (ця сесія)</div>
+      <div id="dswHistoryList"></div>
+    </div>
+
+    <div class="dsw__footer">
+      <span id="dswFooterCats">Категорій виявлення: <b>7</b></span>
+      <span id="dswFooterSrc">Джерело шаблонів: <b>реальні схеми 2025–2026</b></span>
+      <span>Статус: <b>rule-based demo</b></span>
+    </div>
+  </div>
+</div>
+  <script src="script.js"></script>
+</body>
+</html>
