@@ -19,6 +19,10 @@
     return m.map(x=>x.toLowerCase());
   }
 
+  function escapeHtml(str){
+    return str.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
   const rulesUK = [
     { cat:"Фішингове посилання", level:"high",
       test:(t)=> /\.(site|top|online|cc|help|click)\b/i.test(t),
@@ -28,12 +32,12 @@
       test:(t)=> extractDomains(t).some(d => officialDomains.some(o => { const dist = levenshtein(d,o); return dist>0 && dist<=3 && d!==o; })),
       msg:"Домен у повідомленні дуже схожий на офіційний (diia.gov.ua, privat24.ua тощо), але не збігається точно.",
       tip:"Навіть одна зайва літера чи дефіс у домені — ознака підробки. Завжди звіряй адресу посимвольно." },
-        { cat:"Запит конфіденційних даних", level:"high",
+    { cat:"Запит конфіденційних даних", level:"high",
       test:(t)=> /(cvv|пароль|password|pin-?code|pin-?код|sms code|код з смс|confirm (your )?card|enter (your )?(card|data)|підтвердіть картку|введіть.*(картк|дан))/i.test(t),
       msg:"Повідомлення просить ввести CVV, пароль або дані картки — легітимні сервіси ніколи цього не роблять через посилання в SMS.",
       tip:"Для отримання переказу достатньо номера картки/IBAN. PIN, CVV чи паролі для цього не потрібні нікому й ніколи." },
     { cat:"Заміна SIM / перехоплення номера", level:"high",
-      test:(t)=> /(перевипуск|заміна|reissue|replace).{0,15}(сім|sim)/i.test(t) || /(продиктуйте|назвіть|скажіть|read out|dictate|provide|share).{0,20}(код|code)/i.test(t) || /(підтвердіть номер телефону|confirm (your )?phone number)/i.test(t),
+      test:(t)=> /(перевипуск|заміна|reissue|replace).{0,15}(сім|\bsim\b)/i.test(t) || /(продиктуйте|назвіть|скажіть|read out|dictate|provide|share).{0,20}(код|code)/i.test(t) || /(підтвердіть номер телефону|confirm (your )?phone number)/i.test(t),
       msg:"Схема схожа на спробу перехопити твій номер телефону (SIM-swap), щоб отримати доступ до банкінгу через SMS-коди.",
       tip:"Ніколи не передавай коди підтвердження оператора зв'язку стороннім особам, навіть якщо дзвінок виглядає офіційним." },
     { cat:"Фальшива виплата/компенсація", level:"med",
@@ -41,7 +45,7 @@
       msg:"Обіцянка виплати чи компенсації в обмін на «підтвердження» даних — одна з найпоширеніших схем 2025–2026 років.",
       tip:"Інформацію про реальні виплати перевіряй лише на офіційних державних чи банківських ресурсах, а не за посиланням з SMS." },
     { cat:"Психологічний тиск / терміновість", level:"med",
-      test:(t)=> /(терміново|негайно|протягом \d+ годин|щоб уникнути блокування|остання можливість|urgently|immediately|within \d+ hours?|to avoid (blocking|being blocked)|last chance)/i.test(t),
+      test:(t)=> /(терміново|негайно|протягом \d+ годин|щоб уникнути блокування|остання можливість|urgent(ly)?|immediately|within \d+ hours?|to avoid (blocking|being blocked)|last chance|will be (blocked|suspended|locked|closed))/i.test(t),
       msg:"Текст створює штучний поспіх — типовий прийом соціальної інженерії, щоб людина не встигла подумати.",
       tip:"Легітимні служби дають розумний термін і не погрожують блокуванням за кілька годин." },
     { cat:"Прохання від «знайомого»", level:"med",
@@ -197,7 +201,7 @@
     list.innerHTML = history.map(h => `
       <div class="dsw__history-item">
         <div class="dsw__history-dot hd-${h.level}"></div>
-        <div class="dsw__history-text">${h.snippet}</div>
+        <div class="dsw__history-text">${escapeHtml(h.snippet)}</div>
       </div>`).join("");
   }
 
@@ -206,6 +210,13 @@
     const scan = root.querySelector("#dswScan");
     const resultBox = root.querySelector("#dswResult");
     resultBox.classList.remove("show");
+
+    if(!text.trim()){
+      resultBox.innerHTML = `<div class="dsw__clean">${lang==='uk' ? 'Введи текст повідомлення, перш ніж перевіряти.' : 'Enter a message before checking.'}</div>`;
+      resultBox.classList.add("show");
+      return;
+    }
+
     scan.classList.add("active");
     setTimeout(() => { scan.classList.remove("active"); render(analyze(text), text); }, 650);
   });
